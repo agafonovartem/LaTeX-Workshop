@@ -30,11 +30,11 @@ The internal viewer needs no additional forwarded port. A separate browser tab s
 python3 tools/install-browser-bridge.py --external-url https://YOUR-PRIVATE-FORWARDED-HOST
 ```
 
-The installer preserves the existing settings, configures `latex-workshop.view.pdf.internal.urlPrefix`, and registers a loopback-only macOS LaunchAgent. It requires Node.js in PATH. `tools/browser-bridge.cjs` proxies to the newest live LaTeX Workshop session, retains HTTP/WebSocket origin validation, and logs status without document contents. The helper is installed separately from the VSIX and survives extension updates.
+The installer preserves the existing settings, configures `latex-workshop.view.pdf.internal.urlPrefix`, and registers a loopback-only macOS LaunchAgent. It requires Node.js in PATH. `tools/browser-bridge.cjs` proxies to the newest live LaTeX Workshop session, retains HTTP/WebSocket origin validation, and logs status without document contents. The helper is installed separately from the VSIX and survives extension updates. If the forwarded address changes or port 34567 disappears from the Ports view, forward it again and rerun the installer with its current HTTPS address. Keeping the old address in the settings does not recreate the remote forwarding route.
 
 ### Updating this fork
 
-Merge upstream changes into this repository, run the checks above, and install the newly built VSIX. The PDF changes live in TypeScript sources and are rebuilt normally; no edits inside an installed extension are needed. The focused regression checks run with `npm run test:webview`; they cover the worker, scoped resources, message transport, the browser command with PDF focus, and iPad wheel handling. Upstream's TeX/Electron test suites remain available through `npm test`.
+Merge upstream changes into this repository, run the checks above, and install the newly built VSIX. The PDF changes live in TypeScript sources and are rebuilt normally; no edits inside an installed extension are needed. The focused regression checks run with `npm run test:webview`; they cover the worker, scoped resources, message transport, the browser command with PDF focus, iPad wheel handling, and the companion's HTTP/WebSocket forwarding, session changes and restricted Origin restoration. Upstream's TeX/Electron test suites remain available through `npm test`.
 
 ---
 

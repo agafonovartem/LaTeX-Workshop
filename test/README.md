@@ -2,7 +2,7 @@
 
 ## Fork PDF regressions
 
-After `npm run compile`, run `npm run test:webview` for standalone Node checks of native webview resources, bidirectional messaging, the bundled blob worker, original SyncTeX URI, browser commands with PDF focus and iPad trackpad handling. These focused checks do not launch VS Code or replace the full TeX/Electron suites below.
+After `npm run compile`, run `npm run test:webview` for standalone Node checks of native webview resources, bidirectional messaging, the bundled blob worker, original SyncTeX URI, browser commands with PDF focus, iPad trackpad handling, and the browser companion's HTTP/WebSocket routing, session changes and restricted Origin restoration. These focused checks do not launch VS Code or replace the full TeX/Electron suites below.
 
 ## Executing tests
 
