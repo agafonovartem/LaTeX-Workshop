@@ -1,3 +1,4 @@
+import { getNativeView } from './nativeview.js'
 import type { PdfViewerParams } from '../../types/latex-workshop-protocol-types/index'
 
 export const pdfFilePrefix = 'pdf..'
@@ -35,6 +36,13 @@ export function decodePath(b64url: string): string {
 let urlComponents: ReturnType<typeof parseURL>
 export function parseURL(): { encodedPath: string, pdfFileUri: string, docTitle: string } {
     if (urlComponents) {
+        return urlComponents
+    }
+    const native = getNativeView()
+    if (native) {
+        const pdfFileUri = native.pdfFileUri
+        const docTitle = pdfFileUri.split(/[\\/]/).pop() ?? 'Untitled PDF'
+        urlComponents = { encodedPath: encodePath(pdfFileUri), pdfFileUri, docTitle }
         return urlComponents
     }
     const query = document.location.search.substring(1)

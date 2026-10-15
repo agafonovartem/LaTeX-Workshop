@@ -1,3 +1,4 @@
+import { getNativeView } from './nativeview.js'
 import * as utils from './utils.js'
 import { sendLog } from './connection.js'
 import { viewerState, viewerStatePromise } from './state.js'
@@ -87,10 +88,12 @@ export async function refresh() {
     PDFViewerApplication.eventBus.on('pagerendered', cb)
 
     const { encodedPath, docTitle } = utils.parseURL()
+    const native = getNativeView()
     /* eslint-disable */
     const doc = await pdfjsLib.getDocument({
-        url: `${utils.pdfFilePrefix}${encodedPath}`,
-        cMapUrl: '../cmaps/'
+        url: native ? await native.reloadPDF() : `${utils.pdfFilePrefix}${encodedPath}`,
+        cMapUrl: native?.cMapUrl ?? '../cmaps/',
+        ...(native ? { standardFontDataUrl: native.standardFontDataUrl, wasmUrl: native.wasmUrl } : {})
     }).promise
     PDFViewerApplication.load(doc)
     /* eslint-enable */

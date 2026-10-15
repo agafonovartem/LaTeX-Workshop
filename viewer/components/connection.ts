@@ -1,12 +1,23 @@
 import type { ClientRequest, PanelRequest, ServerResponse } from '../../types/latex-workshop-protocol-types/index'
+import { getNativeView } from './nativeview.js'
 import { refresh } from './refresh.js'
 import { forwardSynctex } from './synctex.js'
 import * as utils from './utils.js'
 
 let server: string
-let websocket: Promise<WebSocket>
+let websocket: Promise<Pick<WebSocket, 'readyState' | 'send'>>
 
 export function initConnect() {
+    const native = getNativeView()
+    if (native) {
+        websocket = Promise.resolve({ readyState: 1, send: (data: string) => native.packet(data) })
+        window.addEventListener('message', (event: MessageEvent<{ type?: string, data: string }>) => {
+            if (event.data?.type === 'lw-native-packet') { handler({ data: event.data.data }) }
+            else if (event.data?.type === 'lw-native-disconnected') { native.panel({ type: 'disconnected' }) }
+        })
+        void send({ type: 'open', pdfFileUri: utils.parseURL().pdfFileUri })
+        return
+    }
     const scheme = 'https:' === window.location.protocol ? 'wss' : 'ws'
     const path = window.location.pathname.substring(0, window.location.pathname.indexOf('viewer.html'))
     server = `${scheme}://${window.location.hostname}:${window.location.port}${path}`
@@ -15,7 +26,8 @@ export function initConnect() {
         ws.addEventListener('open', () => { resolve(ws) })
         ws.addEventListener('error', () => reject(new Error(`Failed to connect to ${server}`)))
     })
-    websocket.then((ws: WebSocket) => {
+    websocket.then((connection) => {
+        const ws = connection as WebSocket
         ws.addEventListener('message', handler)
         ws.addEventListener('close', reconnect)
         const openPack: ClientRequest = {
@@ -48,13 +60,15 @@ export function sendLog(message: string) {
 }
 
 export function sendPanel(msg: PanelRequest) {
+    const native = getNativeView()
+    if (native) { native.panel(msg); return }
     if (!utils.isEmbedded()) {
         return
     }
     window.parent?.postMessage(msg, '*')
 }
 
-function handler(event: MessageEvent<string>) {
+function handler(event: Pick<MessageEvent<string>, 'data'>) {
     const data = JSON.parse(event.data) as ServerResponse
     switch (data.type) {
         case 'synctex': {

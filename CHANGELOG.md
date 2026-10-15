@@ -1,5 +1,13 @@
 # Change Log
 
+## [10.19.1] - iPad fork
+
+- Render PDF.js through native VS Code Web resource and message channels, with a bundled blob worker.
+- Improve iPad text quality and trackpad scrolling while retaining SyncTeX.
+- Allow View in web browser when a PDF custom editor has focus.
+- Read local viewer assets directly from disk and preserve upstream reconnect recovery.
+- Add focused regression checks, a VSIX build workflow, and an optional macOS private-tunnel companion.
+
 ## [10.19.0] - 2026-09-17
 
 ### Added

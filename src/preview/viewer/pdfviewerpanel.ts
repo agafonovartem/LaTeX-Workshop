@@ -1,6 +1,7 @@
 import * as vscode from 'vscode'
 import { lw } from '../../lw'
 import * as manager from './pdfviewermanager'
+import { getNativeContent } from './nativewebview'
 import type { PanelRequest, PdfViewerState } from '../../../types/latex-workshop-protocol-types/index'
 import { escapeHtml, sleep } from '../../utils/utils'
 
@@ -76,7 +77,7 @@ class PdfViewerPanel {
         this.reloadTimes.push(now)
         logger.log(`Viewer ${reason}, reloading ${this.pdfUri.toString(true)} .`)
         await lw.server.initialized()
-        const html = await getPDFViewerContent(this.pdfUri)
+        const html = await getPDFViewerContent(this.pdfUri, this.webviewPanel)
         // VS Code ignores assignments of unchanged HTML. Clear it first so that
         // the viewer is reloaded even if the resolved URL is the same as before,
         // e.g. when a dead port forwarding was re-established on the same port.
@@ -109,7 +110,7 @@ class PdfViewerPanelSerializer implements vscode.WebviewPanelSerializer {
             panel.webview.html = `<!DOCTYPE html> <html lang="en"><meta charset="utf-8"/><br>File not found: ${s}</html>`
             return
         }
-        panel.webview.html = await getPDFViewerContent(pdfFileUri)
+        panel.webview.html = await getPDFViewerContent(pdfFileUri, panel)
         const pdfPanel = new PdfViewerPanel(pdfFileUri, panel)
         manager.insert(pdfPanel)
         return
@@ -136,7 +137,7 @@ async function patchCodespaces(url: vscode.Uri) {
 // Create a PdfViewerPanel inside an existing vscode.WebviewPanel
 async function populate(pdfUri: vscode.Uri, panel: vscode.WebviewPanel): Promise<PdfViewerPanel>{
     await lw.server.initialized()
-    const htmlContent = await getPDFViewerContent(pdfUri)
+    const htmlContent = await getPDFViewerContent(pdfUri, panel)
     panel.webview.html = htmlContent
     const pdfPanel = new PdfViewerPanel(pdfUri, panel)
     return pdfPanel
@@ -159,7 +160,10 @@ function getKeyboardEventConfig(): boolean {
  *
  * @param pdfUri The path of a PDF file to be opened.
  */
-async function getPDFViewerContent(pdfUri: vscode.Uri): Promise<string> {
+async function getPDFViewerContent(pdfUri: vscode.Uri, panel: vscode.WebviewPanel): Promise<string> {
+    if (vscode.env.uiKind === vscode.UIKind.Web) {
+        return getNativeContent(pdfUri, panel)
+    }
     const uri = (await lw.server.getUrl(pdfUri)).uri
     const iframeSrcOrigin = `${uri.scheme}://${uri.authority}`
     const iframeSrcUrl = uri.toString(true)

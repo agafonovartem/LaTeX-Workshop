@@ -1,3 +1,9 @@
+# Native web clients in this fork
+
+For VS Code Web, `src/preview/viewer/nativewebview.ts` places PDF.js directly in the webview, maps extension/PDF assets through `asWebviewUri`, and bridges the existing viewer protocol through webview messages and a local WebSocket. The PDF worker is fetched into a blob URL before PDF.js starts. The VS Code API object stays inside a private closure and resource roots are limited to the extension and the PDF's directory.
+
+Desktop panels and standalone browser tabs retain the upstream HTTP viewer described below. On iPad, the client supersamples canvas rendering and handles trackpad wheel events inside the native PDF container. See the repository README for the optional private browser-tunnel companion.
+
 # Overview
 
 The pdf viewer is based on [PDF.js](https://mozilla.github.io/pdf.js/) by Mozilla Foundation. Files are from the [prebuilt download version](https://mozilla.github.io/pdf.js/getting_started/#download). See a [related issue](https://github.com/mozilla/pdf.js/issues/9318#issuecomment-354192067).

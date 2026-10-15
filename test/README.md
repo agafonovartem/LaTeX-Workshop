@@ -1,5 +1,9 @@
 # Overview
 
+## Fork PDF regressions
+
+After `npm run compile`, run `npm run test:webview` for standalone Node checks of native webview resources, bidirectional messaging, the bundled blob worker, original SyncTeX URI, browser commands with PDF focus and iPad trackpad handling. These focused checks do not launch VS Code or replace the full TeX/Electron suites below.
+
 ## Executing tests
 
 We start a new VS Code instance for `testground` and `multiroot` directories in `test/fixtures/`, which includes a series of TeX-related files for tests, and execute appropriate tests defined in `suites/*.test.ts` while skipping other tests not related to the directory.

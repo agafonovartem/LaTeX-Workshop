@@ -1,3 +1,5 @@
+import { getNativeView, prepareNativeWorker, isIOS } from './components/nativeview.js'
+import { configureNativeResolution, installNativeWheelScrolling } from './components/nativeinput.js'
 import { patchViewerUI, registerKeyBind, registerPersistentState, repositionAnnotation } from './components/gui.js'
 import * as utils from './components/utils.js'
 
@@ -7,6 +9,7 @@ import { initUploadState, setParams, uploadState } from './components/state.js'
 import { initConnect, send } from './components/connection.js'
 import { registerSyncTeX } from './components/synctex.js'
 
+declare const pdfjsLib: { OutputScale: object }
 declare const PDFViewerApplication: PDFViewerApplicationType
 declare const PDFViewerApplicationOptions: PDFViewerApplicationOptionsType
 
@@ -43,12 +46,13 @@ function onPDFViewerEvent(event: PdfjsEventName, cb: (evt?: any) => unknown, opt
 }
 
 async function initialization() {
+    await prepareNativeWorker()
     document.title = utils.parseURL().docTitle
 
     const params = await utils.getParams()
-    document.addEventListener('webviewerloaded', () => {
+    const configureViewerOptions = () => {
         const color = utils.isPrefersColorSchemeDark(params.codeColorTheme) ? params.color.dark : params.color.light
-        const options = {
+        const options: Record<string, unknown> = {
             annotationEditorMode: -1,
             disablePreferences: true,
             enableScripting: false,
@@ -61,8 +65,23 @@ async function initialization() {
             forcePageColors: true,
             ...color
         }
+        const native = getNativeView()
+        if (native) {
+            Object.assign(options, {
+                defaultUrl: native.pdfUrl, workerSrc: native.workerSrc,
+                cMapUrl: native.cMapUrl, standardFontDataUrl: native.standardFontDataUrl,
+                wasmUrl: native.wasmUrl, imageResourcesPath: native.imageResourcesPath
+            })
+        }
+        if (isIOS()) {
+            options.maxCanvasPixels = 16 * 1024 * 1024
+            configureNativeResolution(pdfjsLib.OutputScale)
+            if (native) { installNativeWheelScrolling(document.getElementById('viewerContainer')!) }
+        }
         PDFViewerApplicationOptions.setAll(options)
-    })
+    }
+    document.addEventListener('webviewerloaded', configureViewerOptions)
+    try { parent.document.addEventListener('webviewerloaded', configureViewerOptions) } catch (_) { /* Cross-origin browser iframe. */ }
 
     initConnect()
     await patchViewerUI()

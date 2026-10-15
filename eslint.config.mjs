@@ -14,7 +14,7 @@ const compat = new FlatCompat({
     allConfig: js.configs.all
 });
 
-export default [{
+const config = [{
     ignores: [
         "dev/*.js",
         "types/**/*.ts",
@@ -211,3 +211,11 @@ export default [{
         "@typescript-eslint/ban-ts-comment": "off",
     },
 }];
+// Standalone Node regression checks and the optional loopback companion.
+const nodeScripts = {
+    files: ['test-native/**/*.cjs', 'tools/**/*.cjs'],
+    languageOptions: { sourceType: 'commonjs', globals: globals.node },
+    rules: { '@typescript-eslint/no-require-imports': 'off', 'no-empty': ['error', { allowEmptyCatch: true }] }
+}
+
+export default [...config, nodeScripts]

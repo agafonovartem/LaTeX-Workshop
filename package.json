@@ -1,15 +1,15 @@
 {
   "name": "latex-workshop",
-  "displayName": "LaTeX Workshop",
+  "displayName": "LaTeX Workshop (iPad fork)",
   "description": "Boost LaTeX typesetting efficiency with preview, compile, autocomplete, colorize, and more.",
   "icon": "icons/icon.png",
-  "version": "10.19.0",
+  "version": "10.19.1",
   "publisher": "James-Yu",
   "license": "MIT",
-  "homepage": "https://github.com/James-Yu/LaTeX-Workshop",
+  "homepage": "https://github.com/agafonovartem/LaTeX-Workshop",
   "repository": {
     "type": "git",
-    "url": "https://github.com/James-Yu/LaTeX-Workshop.git"
+    "url": "https://github.com/agafonovartem/LaTeX-Workshop.git"
   },
   "engines": {
     "vscode": "^1.114.0"
@@ -3051,7 +3051,9 @@
     "test": "node ./out/test/runTest.js",
     "watch-src": "tsc -watch -p tsconfig.json",
     "watch-viewer": "tsc -watch -p viewer/tsconfig.json",
-    "update-grammar": "node ./dev/update-grammar.mjs"
+    "update-grammar": "node ./dev/update-grammar.mjs",
+    "test:webview": "node --test test-native/*.test.cjs",
+    "package:fork": "npm run compile && npm run test:webview && vsce package"
   },
   "dependencies": {
     "cross-spawn": "^7.0.6",

@@ -1,5 +1,43 @@
 # Visual Studio Code LaTeX Workshop Extension
 
+## iPad / VS Code Web fork
+
+This fork maintains the native PDF viewer fixes used with iPad Safari and VS Code Remote Tunnels. It includes authenticated VS Code resource URIs, a bundled blob worker, Retina text rendering, trackpad scrolling, SyncTeX, and the latest upstream viewer reconnect recovery. The browser-view command also accepts a focused PDF tab.
+
+The extension ID remains `James-Yu.latex-workshop` so existing settings and shortcuts continue to work. The displayed name is **LaTeX Workshop (iPad fork)**. Install this fork from VSIX; Marketplace builds replace the fork's code. VSIX installation pins the extension against automatic Marketplace updates.
+
+### Build and install
+
+Use Node.js 24 and npm:
+
+```sh
+npm ci
+npm run lint
+npm run package:fork
+code --install-extension latex-workshop-10.19.1.vsix --force
+```
+
+For iPad use, install the VSIX on the remote VS Code server, rather than only on the desktop client. **Build iPad fork VSIX** in this repository's Actions builds and uploads the package on every push to `master`, on `ipad-v*` tags, and on manual dispatch. GitHub may require enabling Actions once for a newly created fork.
+
+### View in web browser through Remote Tunnels
+
+The internal viewer needs no additional forwarded port. A separate browser tab still needs a private route to the extension HTTP/WebSocket server. If VS Code returns an unchanged loopback URL from `asExternalUri`, the macOS companion keeps port 34567 stable across extension-host sessions:
+
+1. Forward port **34567** in VS Code's Ports view and keep its visibility **Private**.
+2. Copy its HTTPS forwarded address and install the companion:
+
+```sh
+python3 tools/install-browser-bridge.py --external-url https://YOUR-PRIVATE-FORWARDED-HOST
+```
+
+The installer preserves the existing settings, configures `latex-workshop.view.pdf.internal.urlPrefix`, and registers a loopback-only macOS LaunchAgent. It requires Node.js in PATH. `tools/browser-bridge.cjs` proxies to the newest live LaTeX Workshop session, retains HTTP/WebSocket origin validation, and logs status without document contents. The helper is installed separately from the VSIX and survives extension updates.
+
+### Updating this fork
+
+Merge upstream changes into this repository, run the checks above, and install the newly built VSIX. The PDF changes live in TypeScript sources and are rebuilt normally; no edits inside an installed extension are needed. The focused regression checks run with `npm run test:webview`; they cover the worker, scoped resources, message transport, the browser command with PDF focus, and iPad wheel handling. Upstream's TeX/Electron test suites remain available through `npm test`.
+
+---
+
 <!-- [![version](https://img.shields.io/visual-studio-marketplace/v/James-Yu.latex-workshop)](https://marketplace.visualstudio.com/items?itemName=James-Yu.latex-workshop)
 [![updated](https://img.shields.io/visual-studio-marketplace/last-updated/James-Yu.latex-workshop)](https://marketplace.visualstudio.com/items?itemName=James-Yu.latex-workshop)
 [![release](https://img.shields.io/visual-studio-marketplace/release-date/James-Yu.latex-workshop)](https://vsmarketplacebadge.apphb.com/downloads-short/James-Yu.latex-workshop.svg)

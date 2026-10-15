@@ -1,5 +1,7 @@
 # Overview
 
+`package.yml` builds this fork with Node.js 24, runs lint and the native-viewer regression checks, and uploads `latex-workshop-*.vsix` as a 90-day Actions artifact. It runs on pushes to `master`, `ipad-v*` tags and manual dispatch. Other workflows retain upstream TeX/Electron tests.
+
 We run tests on GitHub Actions on Windows, macOS, and Linux with the minimal installations of TeX Live.
 
 We can see [preinstalled software](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#preinstalled-software) on each platform. Perl 5 is installed even on Windows. So, all we have to do is just installing TeX Live.

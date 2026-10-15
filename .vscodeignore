@@ -75,3 +75,7 @@ node_modules/wicked-good-xpath/
 node_modules/xmldom-sre/
 node_modules/mj-context-menu/
 node_modules/esm/
+
+# Fork-only build checks and host companion installer
+test-native/
+tools/

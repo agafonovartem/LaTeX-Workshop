@@ -3,10 +3,12 @@
 Please notice that we can reject any kinds of pull requests. Especially, we will reject any requests for changes on default values of settings.
 We also reject requests adding additional recipes to default settings.
 
+This fork keeps the iPad/VS Code Web fix in `master` and builds local VSIX packages. Its repository README describes the fork-specific workflow; the guidance below also describes upstream development.
+
 ## Quickstart
 
 ```bash
-git clone https://github.com/James-Yu/LaTeX-Workshop.git
+git clone https://github.com/agafonovartem/LaTeX-Workshop.git
 cd ./LaTeX-Workshop
 cp ./dev/githooks/pre-commit .git/hooks/
 npm ci
@@ -19,7 +21,7 @@ Press <kbd>F5</kbd> in vscode to start the development version in debug mode.
 
 Make sure you have installed:
 
-- [`node.js`](https://nodejs.org/) v18
+- [`node.js`](https://nodejs.org/) v24
 - `npm` v10
 - the [`eslint`](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) extension for VS Code (recommended)
 
@@ -41,7 +43,7 @@ To compile, run
 
 To build a release image, run
 
-    npm run release
+    npm run package:fork
 
 To run tests, run
 

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode'
 import * as http from 'http'
+import { readFile } from 'node:fs/promises'
 import type { AddressInfo } from 'net'
 import ws from 'ws'
 import * as path from 'path'
@@ -252,6 +253,10 @@ function sendOkResponse(response: http.ServerResponse, content: Buffer, contentT
     response.end(content)
 }
 
+async function readViewerFile(uri: vscode.Uri): Promise<Uint8Array> {
+    return uri.scheme === 'file' ? readFile(uri.fsPath) : vscode.workspace.fs.readFile(uri)
+}
+
 async function handler(request: http.IncomingMessage, response: http.ServerResponse) {
     if (await lw.extra.liveshare.handle.server.request(request, response)) {
         return
@@ -278,7 +283,7 @@ async function handler(request: http.IncomingMessage, response: http.ServerRespo
             return
         }
         try {
-            const content = await vscode.workspace.fs.readFile(fileUri)
+            const content = await readViewerFile(fileUri)
             sendOkResponse(response, Buffer.from(content), 'application/pdf')
             logger.log(`Preview PDF file: ${fileUri.toString(true)}`)
         } catch (e) {
@@ -363,10 +368,10 @@ async function handler(request: http.IncomingMessage, response: http.ServerRespo
         }
     }
     try {
-        const content = await vscode.workspace.fs.readFile(lw.file.toUri(fileName))
+        const content = await readViewerFile(lw.file.toUri(fileName))
         sendOkResponse(response, Buffer.from(content), contentType, false)
     } catch (err) {
-        if (typeof (err as any).code === 'string' && (err as any).code === 'FileNotFound') {
+        if (typeof (err as any).code === 'string' && ['FileNotFound', 'ENOENT', 'ENOTDIR'].includes((err as {code: string}).code)) {
             response.writeHead(404)
         } else {
             response.writeHead(500)

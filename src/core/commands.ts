@@ -65,8 +65,14 @@ export async function view(mode?: 'tab' | 'browser' | 'external' | vscode.Uri) {
     } else {
         logger.log('VIEW command invoked.')
     }
+    const input = vscode.window.tabGroups.activeTabGroup.activeTab?.input
+    const pdfUri = mode instanceof vscode.Uri && /\.pdf$/i.test(mode.path) ? mode
+        : input instanceof vscode.TabInputCustom && /\.pdf$/i.test(input.uri.path) ? input.uri : undefined
+    if (pdfUri) {
+        return lw.viewer.view(pdfUri, typeof mode === 'string' ? mode : undefined)
+    }
     if (!vscode.window.activeTextEditor) {
-        logger.log('Cannot find active TextEditor.')
+        logger.log('Cannot find active TeX or PDF editor.')
         return
     }
     if (!lw.file.hasLaTeXLangId(vscode.window.activeTextEditor.document.languageId)) {
